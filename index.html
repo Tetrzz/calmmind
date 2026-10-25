@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calm Mind</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Barra de navegação (só aparece nas telas internas) -->
+  <header id="topbar" class="topbar hidden">
+    <span class="topbar-title">Calm Mind</span>
+    <nav class="topbar-nav">
+      <button class="nav-btn" data-go="menu">Menu</button>
+      <button class="nav-btn" data-go="chat"><img src="img/logo-mape.svg" alt="">Mapé AI</button>
+      <button class="nav-btn" data-go="exercises"><img src="img/logo-respira.svg" alt="">Exercícios</button>
+      <button class="nav-btn" data-go="diary"><img src="img/logo-diario.svg" alt="">Diário</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- Tela 1: abertura -->
+    <section id="splash" class="screen active center-screen">
+      <img src="img/logo-calmmind.svg" alt="Logo Calm Mind" class="logo-big">
+      <h1 class="brand">Calm Mind</h1>
+    </section>
+
+    <!-- Tela 2: início de sessão -->
+    <section id="login" class="screen center-screen">
+      <div class="box">
+        <img src="img/logo-calmmind.svg" alt="Logo Calm Mind" class="logo-small">
+        <h2>Fazer login</h2>
+
+        <div id="login-options">
+          <button class="btn" data-login="Google">Google</button>
+          <button class="btn" data-login="Email">Email</button>
+          <button class="btn" data-login="Telefone">Telefone</button>
+        </div>
+
+        <form id="login-form" class="form hidden">
+          <input type="text" id="f-name" placeholder="Seu nome">
+          <input type="email" id="f-email" placeholder="Seu email" required>
+          <input type="password" id="f-pass" placeholder="Senha (mínimo 4 caracteres)" minlength="4" required>
+          <button type="submit" class="btn primary" id="f-submit">Entrar</button>
+          <button type="button" class="link" id="f-back">← Voltar</button>
+          <p class="error" id="f-error"></p>
+        </form>
+
+        <form id="phone-form" class="form hidden">
+          <input type="tel" id="f-phone" placeholder="(51) 99999-9999" required>
+          <button type="submit" class="btn primary">Entrar</button>
+          <button type="button" class="link" id="p-back">← Voltar</button>
+        </form>
+
+        <div id="signup-box">
+          <p class="question">Ainda não tem uma conta?</p>
+          <button class="btn" id="btn-signup">Criar uma conta</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tela 3: login efetuado -->
+    <section id="logged" class="screen center-screen">
+      <div class="box">
+        <h2>Login efetuado!</h2>
+        <p>Espere alguns segundos...</p>
+        <div class="loader"></div>
+      </div>
+    </section>
+
+    <!-- Tela 4: menu de entrada -->
+    <section id="menu" class="screen center-screen">
+      <div class="box wide">
+        <h2>Por onde você gostaria de começar?</h2>
+        <div class="menu-grid">
+          <button class="menu-item" data-go="chat">
+            <img src="img/logo-mape.svg" alt="">
+            <strong>Mapé AI chat</strong>
+            <small>Conversa com uma IA</small>
+          </button>
+          <button class="menu-item" data-go="diary">
+            <img src="img/logo-diario.svg" alt="">
+            <strong>Diário online</strong>
+            <small>Registre suas emoções</small>
+          </button>
+          <button class="menu-item" data-go="exercises">
+            <img src="img/logo-respira.svg" alt="">
+            <strong>Exercícios respiratórios</strong>
+            <small>Respire e relaxe</small>
+          </button>
+        </div>
+        <button class="link" id="logout">Sair da conta</button>
+      </div>
+    </section>
+
+    <!-- Tela 5: chatbot -->
+    <section id="chat" class="screen content">
+      <h2 class="page-title"><img src="img/logo-mape.svg" alt=""> Mapé AI</h2>
+      <div id="messages" class="messages"></div>
+      <div id="quick" class="quick"></div>
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="chat-input" placeholder="Escreva como você está..." required>
+        <button type="submit" class="btn primary">Enviar</button>
+      </form>
+    </section>
+
+    <!-- Tela 6: exercícios de respiração -->
+    <section id="exercises" class="screen content">
+      <div id="ex-list">
+        <h2 class="page-title"><img src="img/logo-respira.svg" alt=""> Respira Fácil</h2>
+        <p class="subtitle">De que exercício você precisa?</p>
+        <div class="chips">
+          <button class="chip" data-ex="0">Ansiedade</button>
+          <button class="chip" data-ex="1">Calma</button>
+          <button class="chip" data-ex="2">Relaxamento</button>
+        </div>
+      </div>
+
+      <div id="ex-detail" class="hidden">
+        <button class="link" id="ex-back">← Voltar aos exercícios</button>
+        <h2 id="ex-name">Exercício</h2>
+        <p id="ex-sub" class="subtitle"></p>
+        <ol id="ex-steps" class="steps"></ol>
+        <div class="breath-area">
+          <div id="breath" class="breath"><span id="breath-text">Pronto?</span></div>
+        </div>
+        <p id="cycles" class="cycles"></p>
+        <button id="ex-start" class="btn primary">Iniciar</button>
+      </div>
+    </section>
+
+    <!-- Tela 7: diário emocional -->
+    <section id="diary" class="screen content">
+      <h2 class="page-title"><img src="img/logo-diario.svg" alt=""> Diário das Emoções</h2>
+
+      <form id="diary-form" class="diary-form">
+        <p>Como você está se sentindo?</p>
+        <div id="moods" class="moods">
+          <button type="button" data-mood="😄" title="Feliz">😄</button>
+          <button type="button" data-mood="😌" title="Calmo">😌</button>
+          <button type="button" data-mood="😐" title="Neutro">😐</button>
+          <button type="button" data-mood="😢" title="Triste">😢</button>
+          <button type="button" data-mood="😰" title="Ansioso">😰</button>
+          <button type="button" data-mood="😠" title="Irritado">😠</button>
+        </div>
+        <textarea id="diary-text" rows="4" placeholder="Escreva sobre o seu dia..." required></textarea>
+        <button type="submit" class="btn primary">Salvar entrada</button>
+      </form>
+
+      <div id="entries"></div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

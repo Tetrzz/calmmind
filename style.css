@@ -1,0 +1,537 @@
+/* Estilo geral */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #222;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #d9efd2, #f4f6f6, #dcebf7);
+  background-attachment: fixed;
+}
+
+.hidden {
+  display: none !important;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Telas */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.screen.active {
+  display: block;
+}
+
+.center-screen.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* Quando tem barra no topo, a tela fica mais abaixo */
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 90px;
+}
+
+.box {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.box.wide {
+  max-width: 800px;
+}
+
+.box h2 {
+  margin-bottom: 20px;
+}
+
+/* Abertura */
+.logo-big {
+  width: 150px;
+}
+
+.brand {
+  font-size: 36px;
+  color: #fff;
+  text-shadow: 2px 2px 4px #555;
+  margin-top: 10px;
+}
+
+.logo-small {
+  width: 70px;
+  margin-bottom: 10px;
+}
+
+/* Botões e campos */
+.btn {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  margin: 8px auto;
+  padding: 10px 16px;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #eee;
+}
+
+.btn.primary {
+  background: #2bb3a0;
+  border-color: #2bb3a0;
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: #229484;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #5b3fc4;
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+input,
+textarea {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border: 2px solid #222;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.question {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  margin: 20px auto 0;
+  border: 5px solid #fff;
+  border-top-color: #2bb3a0;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Barra do topo */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: #dcebf7;
+  border-bottom: 2px solid #9bb7d0;
+}
+
+.topbar-title {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.topbar-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.nav-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-btn.active {
+  background: #cfeee8;
+  border-color: #2bb3a0;
+}
+
+/* Menu */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.menu-item {
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 15px;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-item:hover {
+  background: #eaf7f4;
+}
+
+.menu-item img {
+  width: 70px;
+  height: 70px;
+}
+
+.menu-item small {
+  color: #555;
+}
+
+/* Títulos das páginas internas */
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.page-title img {
+  width: 45px;
+  height: 45px;
+}
+
+.subtitle {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* Chat */
+.messages {
+  height: 50vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid #222;
+  border-radius: 15px;
+}
+
+.msg {
+  max-width: 75%;
+  padding: 10px 14px;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 14px;
+  line-height: 1.4;
+}
+
+.msg .who {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.msg.bot {
+  align-self: flex-start;
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: #cfeee8;
+}
+
+.msg .btn {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.quick button {
+  padding: 6px 14px;
+  background: #fff;
+  border: 2px solid #2bb3a0;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-form input {
+  flex: 1;
+  max-width: none;
+}
+
+.chat-form .btn {
+  width: auto;
+  margin: 0;
+}
+
+/* Exercícios */
+.chips {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.chip {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px;
+  background: #e9fbf6;
+  border: 2px solid #2bb3a0;
+  border-radius: 25px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.chip:hover {
+  background: #2bb3a0;
+  color: #fff;
+}
+
+#ex-detail {
+  text-align: center;
+}
+
+#ex-detail .link {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.steps {
+  list-style: none;
+  font-weight: bold;
+  line-height: 2;
+}
+
+.breath-area {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.breath {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #2bb3a0;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 4s ease-in-out;
+}
+
+.cycles {
+  min-height: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Diário */
+.diary-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.diary-form textarea {
+  max-width: 100%;
+  resize: vertical;
+}
+
+.moods {
+  display: flex;
+  gap: 8px;
+}
+
+.moods button {
+  font-size: 26px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+}
+
+.moods button.selected {
+  border-color: #2bb3a0;
+  background: #d6f5ee;
+}
+
+.entry {
+  position: relative;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 12px 40px 12px 14px;
+  margin-bottom: 12px;
+}
+
+.entry h4 {
+  margin-bottom: 5px;
+  text-transform: capitalize;
+}
+
+.entry p {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.entry .del {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #b33;
+  font-size: 18px;
+}
+
+.empty {
+  text-align: center;
+  color: #666;
+}
+
+/* ---------- Responsividade ---------- */
+
+/* Tablet */
+@media (max-width: 800px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 15px;
+    padding: 12px 16px;
+  }
+
+  .menu-item img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .menu-item strong,
+  .menu-item small {
+    display: block;
+  }
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  .topbar {
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .topbar-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-btn {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .nav-btn img {
+    display: none;
+  }
+
+  .content {
+    padding-top: 110px;
+  }
+
+  .msg {
+    max-width: 90%;
+  }
+
+  .chat-form {
+    flex-direction: column;
+  }
+
+  .chat-form .btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .moods button {
+    font-size: 22px;
+    padding: 4px 6px;
+  }
+
+  .brand {
+    font-size: 28px;
+  }
+}
