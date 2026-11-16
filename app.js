@@ -161,7 +161,7 @@ document.getElementById('logout').addEventListener('click', function () {
   mostrarTela('login');
 });
 
-// ---------- Chatbot (Mapé AI) ----------
+// ---------- Chatbot (Mape AI) ----------
 var chatIniciado = false;
 var etapaChat = 0; // 0 = perguntou o sentimento, 1 = perguntou a causa, 2 = sugeriu exercício
 var assuntoAtual = null;
@@ -192,7 +192,7 @@ function adicionarMensagem(texto, quem, botao) {
 
   var nome = document.createElement('span');
   nome.className = 'who';
-  nome.textContent = (quem === 'bot') ? 'Mapé' : 'Você';
+  nome.textContent = (quem === 'bot') ? 'Mape' : 'Você';
 
   div.appendChild(nome);
   div.appendChild(document.createTextNode(texto));
