@@ -181,6 +181,7 @@ var assuntos = [
     exercicio: 2,
     pergunta: 'Parece que seu corpo está pedindo uma pausa. O que tem pesado mais?' },
   { palavras: ['bem', 'feliz', 'otimo', 'ótimo', 'tranquil', 'alegre'],
+    positivo: true,
     exercicio: null,
     pergunta: 'Que bom ouvir isso! O que fez o seu dia ser bom?' }
 ];
@@ -244,9 +245,15 @@ function iniciarChat() {
 }
 
 function acharAssunto(texto) {
+  // "não estou bem" não pode ser tratado como "estou bem"
+  var negou = /\bn[ãa]o\b/.test(texto);
+
   for (var i = 0; i < assuntos.length; i++) {
     for (var j = 0; j < assuntos[i].palavras.length; j++) {
       if (texto.indexOf(assuntos[i].palavras[j]) !== -1) {
+        if (assuntos[i].positivo && negou) {
+          return assuntos[1];
+        }
         return assuntos[i];
       }
     }
