@@ -13,5 +13,5 @@ Critérios de avaliação
     comprometer seu funcionamento. Foram realizadas verificações no código JavaScript e na integração entre os arquivos HTML, CSS e
     JavaScript.
 
-6. Adaptabilidade e responsividade: A aplicação utiliza Media Queries no CSS para adaptar a interface a diferentes tamanhos de tela,
+5. Adaptabilidade e responsividade: A aplicação utiliza Media Queries no CSS para adaptar a interface a diferentes tamanhos de tela,
     incluindo dispositivos móveis.
