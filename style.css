@@ -41,11 +41,11 @@ button {
   text-align: center;
 }
 
-/* Quando tem barra no topo, a tela fica mais abaixo */
+/* Telas internas */
 .content {
   max-width: 800px;
   margin: 0 auto;
-  padding-top: 90px;
+  padding-top: 20px;
 }
 
 .box {
@@ -166,51 +166,11 @@ textarea {
   }
 }
 
-/* Barra do topo */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background: #dcebf7;
-  border-bottom: 2px solid #9bb7d0;
-}
-
-.topbar-title {
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.topbar-nav {
-  display: flex;
-  gap: 8px;
-}
-
-.nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #fff;
-  border: 2px solid #222;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-.nav-btn img {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-}
-
-.nav-btn.active {
-  background: #cfeee8;
-  border-color: #2bb3a0;
+/* Botão de voltar ao menu (telas internas) */
+.back-menu {
+  display: block;
+  margin: 0 0 10px;
+  padding: 6px 0;
 }
 
 /* Menu */
@@ -500,28 +460,30 @@ textarea {
 
 /* Celular */
 @media (max-width: 600px) {
-  .topbar {
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px 10px;
+  .screen {
+    padding: 14px;
   }
 
-  .topbar-nav {
-    width: 100%;
-    justify-content: space-between;
+  .page-title {
+    font-size: 20px;
   }
 
-  .nav-btn {
-    padding: 6px 8px;
-    font-size: 12px;
+  .page-title img {
+    width: 36px;
+    height: 36px;
   }
 
-  .nav-btn img {
-    display: none;
+  .messages {
+    height: 55vh;
   }
 
-  .content {
-    padding-top: 110px;
+  .moods {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .breath-area {
+    height: 190px;
   }
 
   .msg {
@@ -544,5 +506,20 @@ textarea {
 
   .brand {
     font-size: 28px;
+  }
+}
+
+/* Celular pequeno */
+@media (max-width: 380px) {
+  .box h2 {
+    font-size: 20px;
+  }
+
+  .menu-item img {
+    width: 70px;
+  }
+
+  .chip {
+    font-size: 16px;
   }
 }

@@ -25,23 +25,12 @@ function mostrarTela(id) {
   }
   document.getElementById(id).classList.add('active');
 
-  // a barra do topo só aparece nas telas internas e no menu
-  var topbar = document.getElementById('topbar');
+  // lembra a última tela (para voltar nela ao recarregar a página)
   if (telasInternas.indexOf(id) !== -1 || id === 'menu') {
-    topbar.classList.remove('hidden');
-  } else {
-    topbar.classList.add('hidden');
+    salvar('telaAtual', id);
   }
 
-  // marca o botão da tela atual na barra
-  var botoes = document.querySelectorAll('.nav-btn');
-  for (var j = 0; j < botoes.length; j++) {
-    if (botoes[j].getAttribute('data-go') === id) {
-      botoes[j].classList.add('active');
-    } else {
-      botoes[j].classList.remove('active');
-    }
-  }
+  window.scrollTo(0, 0);
 
   if (id === 'chat') iniciarChat();
   if (id === 'diary') mostrarEntradas();
@@ -156,6 +145,9 @@ formTelefone.addEventListener('submit', function (e) {
 
 document.getElementById('logout').addEventListener('click', function () {
   localStorage.removeItem('sessao');
+  localStorage.removeItem('telaAtual');
+  localStorage.removeItem('chat');
+  reiniciarChat();
   formLogin.reset();
   voltarLogin();
   mostrarTela('login');
@@ -186,7 +178,26 @@ var assuntos = [
     pergunta: 'Que bom ouvir isso! O que fez o seu dia ser bom?' }
 ];
 
-function adicionarMensagem(texto, quem, botao) {
+// guarda a conversa e o ponto em que ela parou
+function salvarChat(mensagem) {
+  var dados = ler('chat', { mensagens: [], etapa: 0, assunto: null });
+  if (mensagem) {
+    dados.mensagens.push(mensagem);
+  }
+  dados.etapa = etapaChat;
+  dados.assunto = (assuntoAtual === null) ? null : assuntos.indexOf(assuntoAtual);
+  salvar('chat', dados);
+}
+
+function reiniciarChat() {
+  chatIniciado = false;
+  etapaChat = 0;
+  assuntoAtual = null;
+  caixaMensagens.innerHTML = '';
+  caixaRapida.innerHTML = '';
+}
+
+function adicionarMensagem(texto, quem, botao, temporaria) {
   var div = document.createElement('div');
   div.className = 'msg ' + quem;
 
@@ -202,12 +213,17 @@ function adicionarMensagem(texto, quem, botao) {
 
   caixaMensagens.appendChild(div);
   caixaMensagens.scrollTop = caixaMensagens.scrollHeight;
+
+  // mensagens de verdade vão para o localStorage ("digitando..." não)
+  if (!temporaria) {
+    salvarChat({ texto: texto, quem: quem });
+  }
   return div;
 }
 
 // o bot "digita" por um instante antes de responder
 function botFala(texto, botao) {
-  var digitando = adicionarMensagem('digitando...', 'bot');
+  var digitando = adicionarMensagem('digitando...', 'bot', null, true);
   setTimeout(function () {
     digitando.remove();
     adicionarMensagem(texto, 'bot', botao);
@@ -240,6 +256,27 @@ function botaoExercicio(indice, texto) {
 function iniciarChat() {
   if (chatIniciado) return;
   chatIniciado = true;
+
+  // se já existe uma conversa salva, restaura ela
+  var salvo = ler('chat', null);
+  if (salvo !== null && salvo.mensagens.length > 0) {
+    etapaChat = salvo.etapa;
+    assuntoAtual = (salvo.assunto === null) ? null : assuntos[salvo.assunto];
+    for (var i = 0; i < salvo.mensagens.length; i++) {
+      var m = salvo.mensagens[i];
+      var div = document.createElement('div');
+      div.className = 'msg ' + m.quem;
+      var nome = document.createElement('span');
+      nome.className = 'who';
+      nome.textContent = (m.quem === 'bot') ? 'Mape' : 'Você';
+      div.appendChild(nome);
+      div.appendChild(document.createTextNode(m.texto));
+      caixaMensagens.appendChild(div);
+    }
+    caixaMensagens.scrollTop = caixaMensagens.scrollHeight;
+    return;
+  }
+
   botFala('Como você está se sentindo hoje?');
   mostrarRespostasRapidas(['Nervoso', 'Ansioso', 'Triste', 'Cansado', 'Bem']);
 }
@@ -298,12 +335,14 @@ function enviarMensagem(texto) {
     if (assunto) {
       assuntoAtual = assunto;
       etapaChat = 1;
+      salvarChat();
       botFala(assunto.pergunta);
     } else {
       botFala('Entendi. Pode me contar um pouco mais sobre o que você sente?');
     }
   } else if (etapaChat === 1) {
     etapaChat = 2;
+    salvarChat();
     if (assuntoAtual.exercicio !== null) {
       botFala('Faz sentido se sentir assim. Respirar com calma pode ajudar agora. Que tal este exercício?',
         botaoExercicio(assuntoAtual.exercicio, 'Fazer exercício'));
@@ -572,7 +611,11 @@ document.getElementById('diary-form').addEventListener('submit', function (e) {
 // ---------- Ao abrir o site ----------
 setTimeout(function () {
   if (ler('sessao', null) !== null) {
-    mostrarTela('menu');
+    var ultima = ler('telaAtual', 'menu');
+    if (ultima !== 'menu' && telasInternas.indexOf(ultima) === -1) {
+      ultima = 'menu';
+    }
+    mostrarTela(ultima);
   } else {
     voltarLogin();
     mostrarTela('login');
