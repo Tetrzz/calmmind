@@ -29,16 +29,28 @@
         </div>
 
         <form id="login-form" class="form hidden">
-          <input type="text" id="f-name" placeholder="Seu nome">
-          <input type="email" id="f-email" placeholder="Seu email" required>
-          <input type="password" id="f-pass" placeholder="Senha (mínimo 4 caracteres)" minlength="4" required>
+          <div class="field hidden" id="f-name-field">
+            <label for="f-name">Nome</label>
+            <input type="text" id="f-name" placeholder="Seu nome" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input type="email" id="f-email" placeholder="Seu email" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="f-pass">Senha</label>
+            <input type="password" id="f-pass" placeholder="Mínimo 4 caracteres" minlength="4" autocomplete="current-password" aria-describedby="f-error" required>
+          </div>
           <button type="submit" class="btn primary" id="f-submit">Entrar</button>
           <button type="button" class="link" id="f-back">← Voltar</button>
-          <p class="error" id="f-error"></p>
+          <p class="error" id="f-error" role="alert"></p>
         </form>
 
         <form id="phone-form" class="form hidden">
-          <input type="tel" id="f-phone" placeholder="(51) 99999-9999" required>
+          <div class="field">
+            <label for="f-phone">Telefone</label>
+            <input type="tel" id="f-phone" placeholder="(51) 99999-9999" autocomplete="tel" required>
+          </div>
           <button type="submit" class="btn primary">Entrar</button>
           <button type="button" class="link" id="p-back">← Voltar</button>
         </form>
@@ -91,7 +103,8 @@
       <div id="messages" class="messages"></div>
       <div id="quick" class="quick"></div>
       <form id="chat-form" class="chat-form">
-        <input type="text" id="chat-input" placeholder="Escreva como você está..." required>
+        <label for="chat-input" class="sr-only">Mensagem para a Mape</label>
+        <input type="text" id="chat-input" placeholder="Escreva como você está..." autocomplete="off" required>
         <button type="submit" class="btn primary">Enviar</button>
       </form>
     </section>
@@ -128,17 +141,22 @@
       <h2 class="page-title"><img src="img/icone-diario.png" alt=""> Diário das Emoções</h2>
 
       <form id="diary-form" class="diary-form">
-        <p>Como você está se sentindo?</p>
-        <div id="moods" class="moods">
-          <button type="button" data-mood="😄" title="Feliz">😄</button>
-          <button type="button" data-mood="😌" title="Calmo">😌</button>
-          <button type="button" data-mood="😐" title="Neutro">😐</button>
-          <button type="button" data-mood="😢" title="Triste">😢</button>
-          <button type="button" data-mood="😰" title="Ansioso">😰</button>
-          <button type="button" data-mood="😠" title="Irritado">😠</button>
+        <p id="mood-label">Como você está se sentindo?</p>
+        <div id="moods" class="moods" role="group" aria-labelledby="mood-label">
+          <button type="button" data-mood="😄" title="Feliz" aria-label="Feliz" aria-pressed="false">😄</button>
+          <button type="button" data-mood="😌" title="Calmo" aria-label="Calmo" aria-pressed="false">😌</button>
+          <button type="button" data-mood="😐" title="Neutro" aria-label="Neutro" aria-pressed="false">😐</button>
+          <button type="button" data-mood="😢" title="Triste" aria-label="Triste" aria-pressed="false">😢</button>
+          <button type="button" data-mood="😰" title="Ansioso" aria-label="Ansioso" aria-pressed="false">😰</button>
+          <button type="button" data-mood="😠" title="Irritado" aria-label="Irritado" aria-pressed="false">😠</button>
         </div>
-        <textarea id="diary-text" rows="4" placeholder="Escreva sobre o seu dia..." required></textarea>
-        <button type="submit" class="btn primary">Salvar entrada</button>
+        <p id="diary-editing" class="edit-note hidden" role="status">Editando uma entrada</p>
+        <div class="field">
+          <label for="diary-text">Sua anotação</label>
+          <textarea id="diary-text" rows="4" placeholder="Escreva sobre o seu dia..." required></textarea>
+        </div>
+        <button type="submit" class="btn primary" id="diary-submit">Salvar entrada</button>
+        <button type="button" class="link hidden" id="diary-cancel">Cancelar edição</button>
       </form>
 
       <div id="entries"></div>

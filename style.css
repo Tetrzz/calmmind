@@ -140,6 +140,46 @@ textarea {
   font-family: inherit;
 }
 
+/* Campo com etiqueta (label) */
+.field {
+  width: 100%;
+  max-width: 300px;
+  text-align: left;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.field input,
+.field textarea {
+  max-width: none;
+}
+
+/* Etiqueta só para leitores de tela */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco visível para quem navega pelo teclado */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #5b3fc4;
+  outline-offset: 2px;
+}
+
 .question {
   margin-top: 20px;
   font-weight: bold;
@@ -401,8 +441,20 @@ textarea {
   background: #fff;
   border: 2px solid #ccc;
   border-radius: 12px;
-  padding: 12px 40px 12px 14px;
+  padding: 12px 72px 12px 14px;
   margin-bottom: 12px;
+}
+
+.entry.editing {
+  border-color: #2bb3a0;
+  background: #f0fbf8;
+}
+
+.entry .edited {
+  display: block;
+  margin-top: 6px;
+  color: #666;
+  font-size: 12px;
 }
 
 .entry h4 {
@@ -415,14 +467,33 @@ textarea {
   word-break: break-word;
 }
 
-.entry .del {
+.entry .del,
+.entry .edit {
   position: absolute;
   top: 8px;
-  right: 10px;
   background: none;
   border: none;
-  color: #b33;
   font-size: 18px;
+  padding: 2px 6px;
+}
+
+.entry .del {
+  right: 8px;
+  color: #b33;
+}
+
+.entry .edit {
+  right: 40px;
+  color: #229484;
+}
+
+.edit-note {
+  font-weight: bold;
+  color: #229484;
+}
+
+.diary-form .field {
+  max-width: 100%;
 }
 
 .empty {

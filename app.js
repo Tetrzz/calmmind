@@ -19,6 +19,11 @@ var telasInternas = ['chat', 'exercises', 'diary'];
 function mostrarTela(id) {
   pararRespiracao();
 
+  // sair do diário no meio de uma edição cancela a edição
+  if (id !== 'diary' && editandoId !== null) {
+    cancelarEdicao();
+  }
+
   var telas = document.querySelectorAll('.screen');
   for (var i = 0; i < telas.length; i++) {
     telas[i].classList.remove('active');
@@ -53,6 +58,8 @@ var formLogin = document.getElementById('login-form');
 var formTelefone = document.getElementById('phone-form');
 var caixaCadastro = document.getElementById('signup-box');
 var campoNome = document.getElementById('f-name');
+var caixaNome = document.getElementById('f-name-field'); // campo + label
+var campoSenha = document.getElementById('f-pass');
 var msgErro = document.getElementById('f-error');
 
 function voltarLogin() {
@@ -88,8 +95,9 @@ for (var k = 0; k < botoesLogin.length; k++) {
 
     if (tipo === 'Email') {
       modoCadastro = false;
-      campoNome.classList.add('hidden');
+      caixaNome.classList.add('hidden');
       campoNome.required = false;
+      campoSenha.setAttribute('autocomplete', 'current-password');
       document.getElementById('f-submit').textContent = 'Entrar';
       formLogin.classList.remove('hidden');
     } else {
@@ -102,8 +110,9 @@ document.getElementById('btn-signup').addEventListener('click', function () {
   modoCadastro = true;
   opcoesLogin.classList.add('hidden');
   caixaCadastro.classList.add('hidden');
-  campoNome.classList.remove('hidden');
+  caixaNome.classList.remove('hidden');
   campoNome.required = true;
+  campoSenha.setAttribute('autocomplete', 'new-password');
   document.getElementById('f-submit').textContent = 'Criar conta';
   formLogin.classList.remove('hidden');
 });
@@ -524,17 +533,72 @@ botaoIniciar.addEventListener('click', function () {
 
 // ---------- Diário ----------
 var humorEscolhido = '';
+var editandoId = null; // id da entrada que está sendo editada (null = nova entrada)
+
+var formDiario = document.getElementById('diary-form');
+var campoDiario = document.getElementById('diary-text');
+var botaoSalvarDiario = document.getElementById('diary-submit');
+var botaoCancelarEdicao = document.getElementById('diary-cancel');
+var avisoEdicao = document.getElementById('diary-editing');
 
 var botoesHumor = document.querySelectorAll('#moods button');
+
+// marca o humor escolhido (ou limpa, se vier vazio)
+function escolherHumor(humor) {
+  humorEscolhido = humor;
+  for (var x = 0; x < botoesHumor.length; x++) {
+    var ativo = humor !== '' && botoesHumor[x].getAttribute('data-mood') === humor;
+    botoesHumor[x].classList.toggle('selected', ativo);
+    botoesHumor[x].setAttribute('aria-pressed', ativo ? 'true' : 'false');
+  }
+}
+
 for (var n = 0; n < botoesHumor.length; n++) {
   botoesHumor[n].addEventListener('click', function () {
-    humorEscolhido = this.getAttribute('data-mood');
-    for (var x = 0; x < botoesHumor.length; x++) {
-      botoesHumor[x].classList.remove('selected');
-    }
-    this.classList.add('selected');
+    escolherHumor(this.getAttribute('data-mood'));
   });
 }
+
+function textoData(iso, comHora) {
+  var opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' };
+  if (comHora) {
+    opcoes.hour = '2-digit';
+    opcoes.minute = '2-digit';
+  }
+  return new Date(iso).toLocaleString('pt-BR', opcoes);
+}
+
+// ---- edição de entradas ----
+function iniciarEdicao(id) {
+  var entrada = ler('diario', []).filter(function (item) {
+    return item.id === id;
+  })[0];
+  if (!entrada) return;
+
+  editandoId = id;
+  escolherHumor(entrada.humor || '');
+  campoDiario.value = entrada.texto;
+  botaoSalvarDiario.textContent = 'Salvar alterações';
+  botaoCancelarEdicao.classList.remove('hidden');
+  avisoEdicao.textContent = 'Editando a entrada de ' + textoData(entrada.data, false);
+  avisoEdicao.classList.remove('hidden');
+
+  mostrarEntradas();
+  formDiario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  campoDiario.focus();
+}
+
+function cancelarEdicao() {
+  editandoId = null;
+  campoDiario.value = '';
+  escolherHumor('');
+  botaoSalvarDiario.textContent = 'Salvar entrada';
+  botaoCancelarEdicao.classList.add('hidden');
+  avisoEdicao.classList.add('hidden');
+  mostrarEntradas();
+}
+
+botaoCancelarEdicao.addEventListener('click', cancelarEdicao);
 
 function mostrarEntradas() {
   var area = document.getElementById('entries');
@@ -551,6 +615,9 @@ function mostrarEntradas() {
 
     var div = document.createElement('div');
     div.className = 'entry';
+    if (entrada.id === editandoId) {
+      div.classList.add('editing');
+    }
 
     var titulo = document.createElement('h4');
     var data = new Date(entrada.data);
@@ -562,10 +629,23 @@ function mostrarEntradas() {
     var texto = document.createElement('p');
     texto.textContent = entrada.texto;
 
+    var editar = document.createElement('button');
+    editar.type = 'button';
+    editar.className = 'edit';
+    editar.textContent = '✎';
+    editar.title = 'Editar';
+    editar.setAttribute('aria-label', 'Editar entrada de ' + dataTexto);
+    editar.setAttribute('data-id', entrada.id);
+    editar.addEventListener('click', function () {
+      iniciarEdicao(Number(this.getAttribute('data-id')));
+    });
+
     var apagar = document.createElement('button');
+    apagar.type = 'button';
     apagar.className = 'del';
     apagar.textContent = '✕';
     apagar.title = 'Apagar';
+    apagar.setAttribute('aria-label', 'Apagar entrada de ' + dataTexto);
     apagar.setAttribute('data-id', entrada.id);
     apagar.addEventListener('click', function () {
       var id = Number(this.getAttribute('data-id'));
@@ -574,24 +654,53 @@ function mostrarEntradas() {
         return item.id !== id;
       });
       salvar('diario', restantes);
-      mostrarEntradas();
+      if (editandoId === id) {
+        cancelarEdicao(); // já renderiza de novo
+      } else {
+        mostrarEntradas();
+      }
     });
 
     div.appendChild(titulo);
     div.appendChild(texto);
+    if (entrada.editadoEm) {
+      var editado = document.createElement('small');
+      editado.className = 'edited';
+      editado.textContent = 'Editado em ' + textoData(entrada.editadoEm, true);
+      div.appendChild(editado);
+    }
+    div.appendChild(editar);
     div.appendChild(apagar);
     area.appendChild(div);
   }
 }
 
-document.getElementById('diary-form').addEventListener('submit', function (e) {
+formDiario.addEventListener('submit', function (e) {
   e.preventDefault();
 
-  var campo = document.getElementById('diary-text');
-  var texto = campo.value.trim();
+  var texto = campoDiario.value.trim();
   if (texto === '') return;
 
   var lista = ler('diario', []);
+
+  if (editandoId !== null) {
+    // salvando uma edição: muda humor e texto, mantém id e data originais
+    var achou = false;
+    for (var i = 0; i < lista.length; i++) {
+      if (lista[i].id === editandoId) {
+        lista[i].humor = humorEscolhido;
+        lista[i].texto = texto;
+        lista[i].editadoEm = new Date().toISOString();
+        achou = true;
+      }
+    }
+    if (achou) {
+      salvar('diario', lista);
+    }
+    cancelarEdicao(); // limpa o formulário e mostra a lista atualizada
+    return;
+  }
+
   lista.unshift({
     id: Date.now(),
     data: new Date().toISOString(),
@@ -600,11 +709,8 @@ document.getElementById('diary-form').addEventListener('submit', function (e) {
   });
   salvar('diario', lista);
 
-  campo.value = '';
-  humorEscolhido = '';
-  for (var i = 0; i < botoesHumor.length; i++) {
-    botoesHumor[i].classList.remove('selected');
-  }
+  campoDiario.value = '';
+  escolherHumor('');
   mostrarEntradas();
 });
 
