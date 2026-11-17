@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calm Mind</title>
+  <meta name="description" content="Calm Mind: converse com a Mape AI, faça exercícios de respiração e registre suas emoções no diário.">
+  <meta name="theme-color" content="#d9efd2">
   <link rel="icon" type="image/png" href="img/icone-calmmind.png">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -20,7 +22,7 @@
     <section id="login" class="screen center-screen">
       <div class="box">
         <img src="img/logo-calmmind.png" alt="Logo Calm Mind" class="logo-small">
-        <h2>Fazer login</h2>
+        <h2 id="login-title">Fazer login</h2>
 
         <div id="login-options">
           <button class="btn" data-login="Google">Google</button>
@@ -100,7 +102,7 @@
     <section id="chat" class="screen content">
       <button class="link back-menu" data-go="menu">← Menu</button>
       <h2 class="page-title"><img src="img/icone-mape.png" alt=""> Mape AI</h2>
-      <div id="messages" class="messages"></div>
+      <div id="messages" class="messages" role="log" aria-live="polite" aria-label="Conversa com a Mape"></div>
       <div id="quick" class="quick"></div>
       <form id="chat-form" class="chat-form">
         <label for="chat-input" class="sr-only">Mensagem para a Mape</label>

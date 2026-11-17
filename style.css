@@ -594,3 +594,14 @@ textarea:focus-visible {
     font-size: 16px;
   }
 }
+
+/* Quem prefere menos movimento no sistema não vê animações */
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    animation: none;
+  }
+
+  .breath {
+    transition: none !important;
+  }
+}

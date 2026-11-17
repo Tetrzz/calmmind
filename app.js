@@ -1,16 +1,77 @@
 // ===== Calm Mind - app.js =====
 
 // ---------- Funções para salvar e ler dados do navegador ----------
+// Tudo fica dentro de try/catch: se o navegador bloquear o armazenamento
+// (modo privado, cookies desativados) ou o dado estiver corrompido, o site
+// continua funcionando em vez de quebrar.
 function salvar(chave, valor) {
-  localStorage.setItem(chave, JSON.stringify(valor));
+  try {
+    localStorage.setItem(chave, JSON.stringify(valor));
+  } catch (erro) {
+    console.warn('Não foi possível salvar "' + chave + '" no navegador.');
+  }
 }
 
 function ler(chave, padrao) {
-  var texto = localStorage.getItem(chave);
-  if (texto === null) {
+  try {
+    var texto = localStorage.getItem(chave);
+    if (texto === null) {
+      return padrao;
+    }
+    return JSON.parse(texto);
+  } catch (erro) {
     return padrao;
   }
-  return JSON.parse(texto);
+}
+
+function apagar(chave) {
+  try {
+    localStorage.removeItem(chave);
+  } catch (erro) {
+    // sem armazenamento disponível, não há o que apagar
+  }
+}
+
+// lê uma lista; se o dado salvo não for uma lista, usa uma lista vazia
+function lerLista(chave) {
+  var dado = ler(chave, []);
+  return Array.isArray(dado) ? dado : [];
+}
+
+// ---------- Senhas ----------
+// A senha não é guardada em texto puro: salvamos só o "hash" (SHA-256 com sal).
+// Observação: sem servidor isso é uma proteção básica, não segurança real.
+function bytesParaHex(bytes) {
+  return Array.prototype.map.call(bytes, function (b) {
+    return ('0' + b.toString(16)).slice(-2);
+  }).join('');
+}
+
+function novoSal() {
+  var bytes = new Uint8Array(12);
+  if (window.crypto && window.crypto.getRandomValues) {
+    window.crypto.getRandomValues(bytes);
+  } else {
+    for (var i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  return bytesParaHex(bytes);
+}
+
+function hashSenha(senha, sal) {
+  // crypto.subtle só existe em páginas seguras (https ou localhost)
+  if (!window.crypto || !window.crypto.subtle || !window.TextEncoder) {
+    return Promise.resolve('txt:' + senha);
+  }
+  var dados = new TextEncoder().encode(sal + ':' + senha);
+  return window.crypto.subtle.digest('SHA-256', dados).then(function (resultado) {
+    return bytesParaHex(new Uint8Array(resultado));
+  });
+}
+
+function temConta(contas, email) {
+  return Object.prototype.hasOwnProperty.call(contas, email);
 }
 
 // ---------- Trocar de tela ----------
@@ -68,6 +129,7 @@ function voltarLogin() {
   formLogin.classList.add('hidden');
   formTelefone.classList.add('hidden');
   msgErro.textContent = '';
+  document.getElementById('login-title').textContent = 'Fazer login';
   modoCadastro = false;
 }
 
@@ -113,6 +175,7 @@ document.getElementById('btn-signup').addEventListener('click', function () {
   caixaNome.classList.remove('hidden');
   campoNome.required = true;
   campoSenha.setAttribute('autocomplete', 'new-password');
+  document.getElementById('login-title').textContent = 'Criar conta';
   document.getElementById('f-submit').textContent = 'Criar conta';
   formLogin.classList.remove('hidden');
 });
@@ -126,25 +189,62 @@ formLogin.addEventListener('submit', function (e) {
   var email = document.getElementById('f-email').value.trim().toLowerCase();
   var senha = document.getElementById('f-pass').value;
   var contas = ler('contas', {});
+  if (!contas || typeof contas !== 'object' || Array.isArray(contas)) {
+    contas = {}; // dado corrompido: recomeça sem contas
+  }
+  var botao = document.getElementById('f-submit');
+
+  msgErro.textContent = '';
 
   if (modoCadastro) {
-    if (contas[email]) {
+    if (temConta(contas, email)) {
       msgErro.textContent = 'Esse email já tem uma conta.';
       return;
     }
-    contas[email] = { senha: senha, nome: campoNome.value.trim() };
-    salvar('contas', contas);
-    entrar(contas[email].nome);
-  } else {
-    var conta = contas[email];
-    if (!conta) {
-      msgErro.textContent = 'Conta não encontrada. Volte e crie uma conta.';
-    } else if (conta.senha !== senha) {
+    var nome = campoNome.value.trim();
+    var sal = novoSal();
+    botao.disabled = true;
+    hashSenha(senha, sal).then(function (hash) {
+      botao.disabled = false;
+      contas[email] = { nome: nome, sal: sal, hash: hash };
+      salvar('contas', contas);
+      entrar(nome);
+    });
+    return;
+  }
+
+  if (!temConta(contas, email)) {
+    msgErro.textContent = 'Conta não encontrada. Volte e crie uma conta.';
+    return;
+  }
+
+  var conta = contas[email];
+  botao.disabled = true;
+
+  // contas criadas antes do hash têm a senha em texto: aceita e já converte
+  if (conta.hash === undefined) {
+    botao.disabled = false;
+    if (conta.senha !== senha) {
+      msgErro.textContent = 'Senha incorreta.';
+      return;
+    }
+    var salNovo = novoSal();
+    hashSenha(senha, salNovo).then(function (hash) {
+      contas[email] = { nome: conta.nome, sal: salNovo, hash: hash };
+      salvar('contas', contas);
+      entrar(conta.nome);
+    });
+    return;
+  }
+
+  hashSenha(senha, conta.sal).then(function (hash) {
+    botao.disabled = false;
+    if (hash !== conta.hash) {
       msgErro.textContent = 'Senha incorreta.';
     } else {
       entrar(conta.nome);
     }
-  }
+  });
 });
 
 formTelefone.addEventListener('submit', function (e) {
@@ -153,9 +253,9 @@ formTelefone.addEventListener('submit', function (e) {
 });
 
 document.getElementById('logout').addEventListener('click', function () {
-  localStorage.removeItem('sessao');
-  localStorage.removeItem('telaAtual');
-  localStorage.removeItem('chat');
+  apagar('sessao');
+  apagar('telaAtual');
+  apagar('chat');
   reiniciarChat();
   formLogin.reset();
   voltarLogin();
@@ -188,10 +288,24 @@ var assuntos = [
 ];
 
 // guarda a conversa e o ponto em que ela parou
+var MAX_MENSAGENS = 100; // limite do histórico guardado
+
+// lê o chat salvo; se o formato estiver estranho, devolve um chat vazio
+function lerChatSalvo() {
+  var dados = ler('chat', null);
+  if (!dados || !Array.isArray(dados.mensagens)) {
+    return { mensagens: [], etapa: 0, assunto: null };
+  }
+  return dados;
+}
+
 function salvarChat(mensagem) {
-  var dados = ler('chat', { mensagens: [], etapa: 0, assunto: null });
+  var dados = lerChatSalvo();
   if (mensagem) {
     dados.mensagens.push(mensagem);
+    if (dados.mensagens.length > MAX_MENSAGENS) {
+      dados.mensagens = dados.mensagens.slice(-MAX_MENSAGENS);
+    }
   }
   dados.etapa = etapaChat;
   dados.assunto = (assuntoAtual === null) ? null : assuntos.indexOf(assuntoAtual);
@@ -267,10 +381,13 @@ function iniciarChat() {
   chatIniciado = true;
 
   // se já existe uma conversa salva, restaura ela
-  var salvo = ler('chat', null);
-  if (salvo !== null && salvo.mensagens.length > 0) {
-    etapaChat = salvo.etapa;
-    assuntoAtual = (salvo.assunto === null) ? null : assuntos[salvo.assunto];
+  var salvo = lerChatSalvo();
+  if (salvo.mensagens.length > 0) {
+    etapaChat = (salvo.etapa === 1 || salvo.etapa === 2) ? salvo.etapa : 0;
+    assuntoAtual = assuntos[salvo.assunto] || null;
+    if (etapaChat === 1 && assuntoAtual === null) {
+      etapaChat = 0; // estado incompleto: volta ao começo da conversa
+    }
     for (var i = 0; i < salvo.mensagens.length; i++) {
       var m = salvo.mensagens[i];
       var div = document.createElement('div');
@@ -555,7 +672,9 @@ function escolherHumor(humor) {
 
 for (var n = 0; n < botoesHumor.length; n++) {
   botoesHumor[n].addEventListener('click', function () {
-    escolherHumor(this.getAttribute('data-mood'));
+    var humor = this.getAttribute('data-mood');
+    // clicar de novo no humor já marcado tira a marcação
+    escolherHumor(humor === humorEscolhido ? '' : humor);
   });
 }
 
@@ -570,7 +689,7 @@ function textoData(iso, comHora) {
 
 // ---- edição de entradas ----
 function iniciarEdicao(id) {
-  var entrada = ler('diario', []).filter(function (item) {
+  var entrada = lerLista('diario').filter(function (item) {
     return item.id === id;
   })[0];
   if (!entrada) return;
@@ -584,7 +703,8 @@ function iniciarEdicao(id) {
   avisoEdicao.classList.remove('hidden');
 
   mostrarEntradas();
-  formDiario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  var menosMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  formDiario.scrollIntoView({ behavior: menosMovimento ? 'auto' : 'smooth', block: 'start' });
   campoDiario.focus();
 }
 
@@ -602,7 +722,7 @@ botaoCancelarEdicao.addEventListener('click', cancelarEdicao);
 
 function mostrarEntradas() {
   var area = document.getElementById('entries');
-  var lista = ler('diario', []);
+  var lista = lerLista('diario');
   area.innerHTML = '';
 
   if (lista.length === 0) {
@@ -648,8 +768,11 @@ function mostrarEntradas() {
     apagar.setAttribute('aria-label', 'Apagar entrada de ' + dataTexto);
     apagar.setAttribute('data-id', entrada.id);
     apagar.addEventListener('click', function () {
+      if (!confirm('Apagar esta entrada do diário? Isso não pode ser desfeito.')) {
+        return;
+      }
       var id = Number(this.getAttribute('data-id'));
-      var todas = ler('diario', []);
+      var todas = lerLista('diario');
       var restantes = todas.filter(function (item) {
         return item.id !== id;
       });
@@ -681,7 +804,7 @@ formDiario.addEventListener('submit', function (e) {
   var texto = campoDiario.value.trim();
   if (texto === '') return;
 
-  var lista = ler('diario', []);
+  var lista = lerLista('diario');
 
   if (editandoId !== null) {
     // salvando uma edição: muda humor e texto, mantém id e data originais
